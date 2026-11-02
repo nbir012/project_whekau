@@ -35,7 +35,6 @@ s1_raw <- readxl::read_excel(
 ) |>
     janitor::clean_names()
 
-
 # Step 1: record IDs (permanent record_id column in the spreadsheet) -----
 
 s1 <- s1_raw |>
@@ -46,7 +45,6 @@ stopifnot(
     !anyDuplicated(s1$record_id) # no ID used twice
 )
 
-
 # Step 2: remove non-records ---------------------------------------------
 
 s1 <- s1 |>
@@ -56,7 +54,6 @@ s1 <- s1 |>
             regex("example", ignore_case = TRUE)
         )
     ) # removing the kakapo example
-
 
 # Step 3: coordinates and location error as numbers ----------------------
 
@@ -73,7 +70,6 @@ s1 <- s1 |>
     )
 
 count(s1, has_coords, coords_in_nz)
-
 
 # Step 4: standardise categories -----------------------------------------
 
@@ -363,8 +359,6 @@ s1 <- s1 |>
 
 # Step 7: write the cleaned table for modelling --------------------------
 
-dir.create("outputs", showWarnings = FALSE)
-
 s1_clean <- s1 |>
     select(
         record_id,
@@ -400,4 +394,4 @@ s1_clean <- s1 |>
         url
     )
 
-write_csv(s1_clean, here::here("outputs", "whekau_records_clean.csv", na = ""))
+write_csv(s1_clean, here::here("data", "whekau_records_clean.csv"), na = "")
