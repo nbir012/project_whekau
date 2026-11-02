@@ -1,6 +1,24 @@
 ##NOTES FOR METHODS##
 # For REGEX bits, I (NWB) used Claude Opus 5.5
 
+##NOTES FOR FIRST TIME RUNNING CODE##
+
+# Setup: Dropbox link to the master spreadsheet --------------------------
+
+# The script downloads whekau_spreadsheet.xlsx from a Dropbox share link kept in a
+# project .Renviron file, so the link never appears in the code or on GitHub.
+#
+# One-off setup (each team member):
+# 1. In Dropbox, open the share options for whekau_spreadsheet.xlsx and create a link:
+#    access "Anyone with the link", permission "Can view" (not edit). Copy it.
+# 2. Change the "dl=0" at the end of the link to "dl=1" (download the file, not the preview page).
+# 3. In R, with this project open, run:  usethis::edit_r_environ(scope = "project")
+#    and add this line, with your link between the quotes:
+#        WHEKAU_XLSX_URL="https://www.dropbox.com/...&dl=1"
+#    Press Enter after the line (R ignores the last line of .Renviron if it has no newline), then save.
+# 4. Restart R (Session > Restart R). To check it worked, without printing the link:
+#        nzchar(Sys.getenv("WHEKAU_XLSX_URL"))   # should be TRUE
+
 # Libraries --------------------------------------------------------------
 
 library(dplyr)
