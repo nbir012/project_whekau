@@ -37,6 +37,7 @@ approx_window <- 2L # "about 1855", "?1884", "c. 1858" -> year plus or minus 2
 # Quality classes (DRAFT: what are folksthoughts?)
 newspaper_specimen_class <- "B" # newspaper "specimen" with no catalogue number: "A" or "B"
 heard_only_class <- "C" # heard-only records (diagnostic call descriptions can be overridden to "B" in the sheet)
+published_fossil_class <- "A" # DRAFT: fossil identifications published in the literature (reference in Notes) via worthy 2015 database
 
 # I saved the dropbox sharing url to .Renviron to stop it leaking to github.
 # quiet = TRUE stops download.file() printing the URL in the console.
@@ -130,6 +131,8 @@ s1 <- s1 |>
                 ) ~ "report_unspecified",
                 str_detect(t, "commentary") ~ "commentary",
                 str_detect(t, "search") ~ "search_no_find",
+                t == "natural" ~ "subfossil_bone", # fossil sites from the literature
+                t == "archaeological" ~ "midden_bone", # archaeological sites (middens, occupation layers)
                 TRUE ~ "other"
             )
         },
@@ -322,6 +325,18 @@ s1 <- s1 |>
 s1 <- s1 |>
     mutate(
         bone_record = obs_type_std %in% c("subfossil_bone", "midden_bone"),
+        epoch = case_when(
+            !bone_record ~ NA_character_,
+            str_detect(
+                coalesce(observation_date, ""),
+                regex("pleistocene", ignore_case = TRUE)
+            ) ~ "Pleistocene",
+            str_detect(
+                coalesce(observation_date, ""),
+                regex("holocene", ignore_case = TRUE)
+            ) ~ "Holocene",
+            TRUE ~ "unknown" # e.g. the CMNZ lots, which give no epoch
+        ),
         obs_year_min = if_else(bone_record, NA, obs_year_min),
         obs_year_max = if_else(bone_record, NA, obs_year_max),
         date_source = if_else(
@@ -340,6 +355,7 @@ if (!"quality_class" %in% names(s1)) {
 s1 <- s1 |>
     mutate(
         evidence_period = case_when(
+            bone_record & epoch == "Pleistocene" ~ "pleistocene",
             bone_record ~ "pre_european",
             obs_type_std %in%
                 c(
@@ -365,6 +381,7 @@ s1 <- s1 |>
             relevance_std != "Y" | is.na(relevance_std) ~ "D",
             is.na(evidence_period) ~ "D",
             has_catalogue_no ~ "A", # catalogued skins, eggs, bones
+            bone_record & source == "fossil_worthy" ~ published_fossil_class,
             obs_type_std == "specimen_reported" ~ newspaper_specimen_class,
             obs_uncertain ~ "C", # "Seen?", "potential sighting"
             obs_type_std == "heard" ~ heard_only_class,
@@ -397,6 +414,7 @@ s1_clean <- s1 |>
         specimen_id,
         museum,
         article_year,
+        epoch,
         obs_year_min,
         obs_year_max,
         date_source,
