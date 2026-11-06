@@ -27,6 +27,14 @@ library(stringr)
 library(here)
 #library(terra)
 
+# Check to see if dropbox url is present:
+
+if (!nzchar(Sys.getenv("WHEKAU_XLSX_URL"))) {
+    stop(
+        "WHEKAU_XLSX_URL is not set: see the setup notes at the top of this script."
+    )
+}
+
 # Assumptions ------------------------------------------------------------
 
 # Report dates (whole years)
